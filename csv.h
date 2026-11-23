@@ -4,15 +4,15 @@
 #include "commun.h"
 
 typedef struct {
-    uint32_t collisionId;
-    uint32_t vehiculeId;
-    uint16_t annee;
-    uint16_t anneeNaissance;   // 0 si non renseignée
-    int8_t   trajet;           // purpose
-    uint8_t  emplacement;      // location
-    uint8_t  typeUsager;       // 1 conducteur, 2 passager, 3 piéton
-    uint8_t  gravite;          // 1 à 4
-    uint8_t  genre;            // 1 masculin, 2 féminin, 0 non relevé
+    int collisionId;
+    int vehiculeId;
+    int annee;
+    int age;
+    int trajet;           // purpose
+    int emplacement;      // location
+    int type[3];       // 1 conducteur, 2 passager, 3 piéton
+    int gravite[4];          // 1 à 4
+    int genre[2];            // 1 masculin, 2 féminin, 0 non relevé
 } Ligne;
 
 // Lit la ligne suivante. Retourne 1 si OK, 0 si fin de fichier.
