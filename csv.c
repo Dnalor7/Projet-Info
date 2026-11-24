@@ -41,7 +41,7 @@ static int lireTexte(FILE *f, char *buf) {
     do {
         if (fgets(buf, TAILLE_LIGNE, f) == NULL) return 0;
         numLigne++;
-        buf[strcspn(buf, "\r\n")] = '\0';   // enlève le retour à la ligne
+        buf[strcspn(buf, "\n")] = '\0';   // enlève le retour à la ligne
     } while (buf[0] == '\0');
     return 1;
 }
