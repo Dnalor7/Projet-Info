@@ -1,7 +1,7 @@
 #ifndef CSV_H
 #define CSV_H
 #include <bibli.h>
-#include "commun.h"
+#include "bibli.h"
 
 typedef struct {
     int collisionId;
