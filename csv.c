@@ -39,7 +39,7 @@ static int decouper(char *ligne, char *champs[]) {
 // Ignore les lignes vides.
 static int lireTexte(FILE *f, char *buf) {
     do {
-        if (fgets(buf, TAILLE_LIGNE, f) == NULL) return 0;
+        if (fgets(buf, TAILLE_LIGNE, f) == NULL) return 0; // Vérifie si la ligne récupérer est nul  
         numLigne++;
         buf[strcspn(buf, "\n")] = '\0';   // enlève le retour à la ligne
     } while (buf[0] == '\0');
