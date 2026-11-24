@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <bibli.h>
 typedef struct ChainonAge{
   int age;
   struct chainon *suivant;
