@@ -12,7 +12,7 @@ static void erreur(const char *message) {
     exit(1);
 }
 
-// Convertit un texte en nombre. Si le champ est vide, renvoie la valeur par défaut.
+// Convertit convertir une chaîne de caractères en nombre entier. Si le champ est vide, renvoie la valeur par défaut.
 static int nombre(const char *champ, int defaut) {
     if (champ[0] == '\0') return defaut;
     return atoi(champ);
