@@ -46,6 +46,7 @@ static int lireTexte(FILE *f, char *buf) {
     return 1;
 }
 
+//Lit et ignore la première ligne du fichier si le fichier est vide sa affiche une erreur et sa quitte.
 void sauterEntete(FILE *f) {
     char buf[TAILLE_LIGNE];
     if (fgets(buf, TAILLE_LIGNE, f) == NULL) {
