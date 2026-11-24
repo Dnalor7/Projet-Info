@@ -1,4 +1,4 @@
-#ifndef BIBLI_H
+#ifndef bibli_h
 
 #include <stdio.h>
 #include <sys/time.h> 
