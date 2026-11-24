@@ -2,7 +2,7 @@
 
 #define NB_COLONNES 9
 
-static unsigned long numLigne = 1;   // pour les messages d'erreur
+static unsigned int numLigne = 1;   // pour les messages d'erreur
 
 static void erreurLigne(const char *msg) {
     fprintf(stderr, "Erreur ligne %lu : %s\n", numLigne, msg);
