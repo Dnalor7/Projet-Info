@@ -4,35 +4,51 @@
 #define NB_COLONNES 9
 #define TAILLE_LIGNE 256
 
-static unsigned long numLigne = 1;   // numéro de ligne, pour les messages d'erreur
+static int numLigne = 1;   // pour afficher la ligne fautive dans les erreurs
 
-static void erreurLigne(const char *msg) {
-    fprintf(stderr, "Erreur ligne %lu : %s\n", numLigne, msg);
+// Affiche une erreur et arrête le programme
+static void erreur(const char *message) {
+    fprintf(stderr, "Erreur ligne %d : %s\n", numLigne, message);
     exit(1);
 }
 
-// Convertit un texte en entier. Retourne 1 si OK, 0 si vide ou invalide.
-static int versEntier(const char *s, long *res) {
-    char *fin;
-    if (s == NULL || *s == '\0') return 0;
-    *res = strtol(s, &fin, 10);
-    return *fin == '\0';
+// Convertit un texte en nombre. Si le champ est vide, renvoie la valeur par défaut.
+static int nombre(const char *champ, int defaut) {
+    if (champ[0] == '\0') return defaut;
+    return atoi(champ);
 }
 
-// Champ obligatoire : arrête le programme si absent ou hors de [min, max]
-static long champObligatoire(const char *s, long min, long max, const char *nom) {
-    long v;
-    char msg[64];
-    if (!versEntier(s, &v) || v < min || v > max) {
-        snprintf(msg, sizeof msg, "valeur invalide pour %s", nom);
-        erreurLigne(msg);
+// Coupe la ligne à chaque ';' et range le début de chaque morceau dans champs[].
+// Renvoie le nombre de morceaux trouvés.
+static int decouper(char *ligne, char *champs[]) {
+    int n = 0;
+    char *p = ligne;
+
+    while (n < NB_COLONNES) {
+        champs[n] = p;
+        n++;
+        p = strchr(p, ';');      // cherche le prochain ';'
+        if (p == NULL) break;    // plus de ';' : c'était le dernier morceau
+        *p = '\0';               // remplace ';' par une fin de texte
+        p++;                     // passe au morceau suivant
     }
-    return v;
+    return n;
+}
+
+// Lit une ligne du fichier dans buf. Renvoie 0 à la fin du fichier.
+// Ignore les lignes vides.
+static int lireTexte(FILE *f, char *buf) {
+    do {
+        if (fgets(buf, TAILLE_LIGNE, f) == NULL) return 0;
+        numLigne++;
+        buf[strcspn(buf, "\r\n")] = '\0';   // enlève le retour à la ligne
+    } while (buf[0] == '\0');
+    return 1;
 }
 
 void sauterEntete(FILE *f) {
     char buf[TAILLE_LIGNE];
-    if (fgets(buf, sizeof buf, f) == NULL) {
+    if (fgets(buf, TAILLE_LIGNE, f) == NULL) {
         fprintf(stderr, "Erreur : fichier vide\n");
         exit(1);
     }
@@ -41,55 +57,44 @@ void sauterEntete(FILE *f) {
 int lireLigne(FILE *f, Ligne *l) {
     char buf[TAILLE_LIGNE];
     char *champs[NB_COLONNES];
-    long v;
-    size_t len;
 
-    // Lit la ligne suivante en ignorant les lignes vides
-    do {
-        if (fgets(buf, sizeof buf, f) == NULL) return 0;   // fin de fichier
-        numLigne++;
-        len = strlen(buf);
-        if (len > 0 && buf[len - 1] != '\n' && !feof(f))
-            erreurLigne("ligne trop longue");
-        buf[strcspn(buf, "\r\n")] = '\0';
-    } while (buf[0] == '\0');
+    if (!lireTexte(f, buf)) return 0;
 
-    // Découpage au ';' (strtok sauterait les champs vides et décalerait tout)
-    char *p = buf;
-    int n = 0;
-    while (n < NB_COLONNES) {
-        champs[n++] = p;
-        p = strchr(p, ';');
-        if (p == NULL) break;
-        *p++ = '\0';
-    }
-    if (n < NB_COLONNES) erreurLigne("nombre de colonnes insuffisant");
+    if (decouper(buf, champs) < NB_COLONNES)
+        erreur("il manque des colonnes");
 
-    // Tout remettre à zéro (les tableaux type/gravite/genre démarrent vides)
-    memset(l, 0, sizeof *l);
+    // On repart d'une structure vide : tous les tableaux sont à 0
+    memset(l, 0, sizeof(Ligne));
 
-    // Champs obligatoires
-    l->annee       = (int)champObligatoire(champs[0], 1900, 2100, "year");
-    l->collisionId = (int)champObligatoire(champs[1], 0, 99999999, "collision_id");
-    l->vehiculeId  = (int)champObligatoire(champs[2], 0, 2147483647L, "vehicule_id");
+    // --- Champs obligatoires : on vérifie qu'ils sont valides ---
+    int type    = nombre(champs[4], 0);
+    int gravite = nombre(champs[5], 0);
+    int genre   = nombre(champs[6], 0);
+    int naiss   = nombre(champs[7], 0);
 
-    int type    = (int)champObligatoire(champs[4], 1, 3, "user_type");
-    int gravite = (int)champObligatoire(champs[5], 1, 4, "severity");
+    l->annee       = nombre(champs[0], 0);
+    l->collisionId = nombre(champs[1], -1);
+    l->vehiculeId  = nombre(champs[2], -1);
 
-    // Les tableaux fonctionnent comme des "interrupteurs" : une seule case vaut 1
+    if (l->annee < 1900 || l->annee > 2100) erreur("année invalide");
+    if (l->collisionId < 0)                 erreur("collision_id invalide");
+    if (l->vehiculeId < 0)                  erreur("vehicule_id invalide");
+    if (type < 1 || type > 3)               erreur("user_type invalide");
+    if (gravite < 1 || gravite > 4)         erreur("severity invalide");
+
+    // --- Champs non obligatoires : valeur par défaut si vide ---
+    l->emplacement = nombre(champs[3], 0);
+    l->trajet      = nombre(champs[8], 0);
+
+    // Tableaux "interrupteurs" : on met 1 dans la bonne case
     l->type[type - 1] = 1;
     l->gravite[gravite - 1] = 1;
+    if (genre == 1 || genre == 2)
+        l->genre[genre - 1] = 1;     // sinon : genre non relevé, les deux cases restent à 0
 
-    // Champs tolérants (valeur par défaut si vide ou non relevé)
-    l->emplacement = (versEntier(champs[3], &v) && v >= 0 && v <= 255) ? (int)v : 0;
-    l->trajet      = (versEntier(champs[8], &v) && v >= -1 && v <= 127) ? (int)v : 0;
-
-    if (versEntier(champs[6], &v) && (v == 1 || v == 2))
-        l->genre[v - 1] = 1;               // sinon : les deux cases restent à 0
-
-    // Âge = année de l'accident - année de naissance, -1 si inconnu
-    if (versEntier(champs[7], &v) && v > 1850 && v <= l->annee && l->annee - v <= 120)
-        l->age = l->annee - (int)v;
+    // Âge = année de l'accident - année de naissance (-1 si inconnu)
+    if (naiss > 1850 && naiss <= l->annee)
+        l->age = l->annee - naiss;
     else
         l->age = -1;
 
