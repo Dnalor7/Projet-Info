@@ -1,5 +1,5 @@
 #include<bibli.h>
-#include <bibli.h>
+
 
 typedef struct Victime{
     int age;
