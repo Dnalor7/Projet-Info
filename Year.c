@@ -112,5 +112,3 @@ void modeYearData(const char *cheminCsv) {
 
     menu();
 }
-
-
