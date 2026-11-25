@@ -99,10 +99,11 @@ int lireLigne(FILE *f, Ligne *l) {
     // Âge = année de l'accident - année de naissance (-1 si inconnu)
     if (naiss > 1900 && naiss <= l->annee)
         l->age = l->annee - naiss;
-    else
+    
+    else{
         l->age = -1;
 
-
+    }
 
     
 
