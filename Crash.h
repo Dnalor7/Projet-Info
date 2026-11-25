@@ -11,7 +11,7 @@ typedef struct Victime{
 
 typedef struct Vehicule{
     Victime *car;
-    int trajet;
+    int trajet[6];
     int id;
     struct Vehicule *suivant;
 }Vehicule;
