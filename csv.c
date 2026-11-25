@@ -1,4 +1,4 @@
-#include <bibli.h>
+#include "bibli.h"
 #include "csv.h"
 
 #define NB_COLONNES 9
@@ -84,8 +84,6 @@ int lireLigne(FILE *f, Ligne *l) {
     if (type < 1 || type > 3)               erreur("user_type invalide");
     if (gravite < 1 || gravite > 4)         erreur("severity invalide");
     if (trajet < -1)                        erreur("trajets  ivalide ");
-
-    if(trajet == 0 || trajet == -1)        printf("Trajet non renseigné");
     
     // --- Champs non obligatoires : valeur par défaut si vide ---
     l->emplacement = nombre(champs[3], 0);
@@ -104,8 +102,5 @@ int lireLigne(FILE *f, Ligne *l) {
         l->age = -1;
 
     }
-
-    
-
     return 1;
 }
