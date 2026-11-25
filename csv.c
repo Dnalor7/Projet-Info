@@ -68,10 +68,10 @@ int lireLigne(FILE *f, Ligne *l) {
     memset(l, 0, sizeof(Ligne));
 
     // --- Champs obligatoires : on vérifie qu'ils sont valides ---
-    int type    = nombre(champs[4], -1);
-    int gravite = nombre(champs[5], -2);
-    int genre   = nombre(champs[6], -3);
-    int naiss   = nombre(champs[7], -4);
+    type    = nombre(champs[4], -1);
+    gravite = nombre(champs[5], -2);
+    genre   = nombre(champs[6], -3);
+    naiss   = nombre(champs[7], -4);
 
     l->annee       = nombre(champs[0], 0);
     l->collisionId = nombre(champs[1], -5);
