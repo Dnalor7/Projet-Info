@@ -10,9 +10,9 @@ typedef struct {
     int age;
     int trajet;           // purpose
     int emplacement;      // location
-    int type[3];       // 1 conducteur, 2 passager, 3 piéton
-    int gravite[4];          // 1 à 4
-    int genre[2];            // 1 masculin, 2 féminin, 0 non relevé
+    int type;       // 1 conducteur, 2 passager, 3 piéton
+    int gravite;          // 1 à 4
+    int genre;            // 1 masculin, 2 féminin, 0 non relevé
     int naiss;
 } Ligne;
 
