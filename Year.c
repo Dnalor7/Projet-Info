@@ -4,12 +4,11 @@
 
 static YearData annees[NB_ANNEES];
 
-// À adapter selon la définition exacte de "severity" dans ton sujet.
 static const char *LIBELLES_GRAVITE[NB_GRAVITES] = {
-    "Severite 1",
-    "Severite 2",
-    "Severite 3",
-    "Severite 4"
+    "Indemne",
+    "tué",
+    "blessé grave",
+    "blesser léger"
 };
 
 // Parcourt tout le CSV et remplit annees[].
