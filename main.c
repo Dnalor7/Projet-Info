@@ -1,7 +1,6 @@
 #include "bibli.h"
 #include "year.h"
 
-// Usage : ./accidents fichier.csv
 int main(int argc, char *argv[]) {
     char buf[64];
     int mode = -1;
