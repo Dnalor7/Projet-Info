@@ -81,7 +81,7 @@ int lireLigne(FILE *f, Ligne *l) {
     
     if (l->annee < 2005 || l->annee > 2024) erreur("année invalide");
     if (l->collisionId < 1)                 erreur("collision_id invalide");
-    if (l->vehiculeId < 1 ||l->vehiculeId > 2)  erreur("vehicule_id invalide");
+    if (l->vehiculeId < 1 )                 erreur("vehicule_id invalide");
     if (type < 1 || type > 3)               erreur("user_type invalide");
     if (gravite < 1 || gravite > 4)         erreur("severity invalide");
     if (l->trajet < -1)                     erreur("trajet invalide");
