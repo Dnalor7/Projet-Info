@@ -1,7 +1,13 @@
-#include <bibli.h>
+#ifnedf year_h
+#define year_h
+#define NB_GRAVITES 4
+#include "bibli.h"
+
 typedef struct YearData{
     int accident; 
-    int gravite;
+    int gravite[NB_GRAVITES];
 }YearData;
 
-YearData annees [NB_ANNEES];
+void modeYearData(const char *cheminCsv);
+
+#endif
