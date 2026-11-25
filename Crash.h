@@ -3,15 +3,15 @@
 
 typedef struct Victime{
     int age;
-    int genre[2];
-    int gravite [4];
-    int type[3];
+    int genre;
+    int gravite;
+    int type;
     struct Victime *suivant;
 }Victime;
 
 typedef struct Vehicule{
     Victime *car;
-    int trajet[6];
+    int trajet;
     int id;
     struct Vehicule *suivant;
 }Vehicule;
