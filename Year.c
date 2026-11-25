@@ -2,81 +2,115 @@
 #include "csv.h"
 #include "year.h"
 
-static YearData annees[NB_ANNEES];
+// Tableau des statistiques : une case par année
+// annees[0] = 2005, annees[1] = 2006, ..., annees[19] = 2024
+YearData annees[NB_ANNEES];
 
-static const char *LIBELLES_GRAVITE[NB_GRAVITES] = {
-    "Indemne",
-    "tué",
-    "blessé grave",
-    "blesser léger"
-};
 
-// Parcourt tout le CSV et remplit annees[].
-// Une collision est comptée une seule fois, même si elle a plusieurs lignes
-// (usagers) : on suppose les lignes d'une même collision consécutives.
-static void calculer(FILE *f) {
+// Met toutes les statistiques à 0 avant de commencer
+void initialiser(void) {
+    int i, k;
+
+    for (i = 0; i < NB_ANNEES; i++) {
+        annees[i].accident = 0;
+        for (k = 0; k < 4; k++) {
+            annees[i].gravite[k] = 0;
+        }
+    }
+}
+
+
+// Lit tout le fichier et remplit le tableau annees[]
+void calculer(FILE *f) {
     Ligne l;
-    int derniereAnnee = 0;
-    int derniereCollision = 0;
+    int i, k;
+    int anneePrec = 0;       // année de la ligne précédente
+    int collisionPrec = 0;   // collision de la ligne précédente
 
     sauterEntete(f);
-    while (lireLigne(f, &l)) {
-        int i = l.annee - ANNEE_DEBUT;
 
-        if (l.annee != derniereAnnee || l.collisionId != derniereCollision) {
-            annees[i].accident++;
-            derniereAnnee = l.annee;
-            derniereCollision = l.collisionId;
+    while (lireLigne(f, &l) == 1) {
+        i = l.annee - ANNEE_DEBUT;   // indice de l'année dans le tableau
+
+        // Une collision a plusieurs lignes (une par usager).
+        // On ne la compte qu'une fois : quand on change de collision.
+        if (l.annee != anneePrec || l.collisionId != collisionPrec) {
+            annees[i].accident = annees[i].accident + 1;
+            anneePrec = l.annee;
+            collisionPrec = l.collisionId;
         }
-        for (int k = 0; k < NB_GRAVITES; k++)
-            annees[i].gravite[k] += l.gravite[k];
+
+        // Chaque usager ajoute 1 dans sa case de gravité
+        for (k = 0; k < 4; k++) {
+            annees[i].gravite[k] = annees[i].gravite[k] + l.gravite[k];
+        }
     }
 }
 
-static void afficherAnnee(int annee) {
-    YearData *d = &annees[annee - ANNEE_DEBUT];
 
-    printf("\n===== Statistiques %d =====\n", annee);
-    printf("Nombre d'accidents : %d\n", d->accident);
-    for (int k = 0; k < NB_GRAVITES; k++)
-        printf("  %-12s : %d\n", LIBELLES_GRAVITE[k], d->gravite[k]);
-    printf("\n");
+// Affiche les statistiques d'une année
+void afficher(int annee) {
+    int i = annee - ANNEE_DEBUT;
+
+    printf("\n--- Statistiques %d ---\n", annee);
+    printf("Nombre d'accidents : %d\n", annees[i].accident);
+    printf("Gravite 1 : %d\n", annees[i].gravite[0]);
+    printf("Gravite 2 : %d\n", annees[i].gravite[1]);
+    printf("Gravite 3 : %d\n", annees[i].gravite[2]);
+    printf("Gravite 4 : %d\n", annees[i].gravite[3]);
 }
 
-// Demande une année à l'utilisateur. Renvoie 0 pour quitter.
-static int demanderAnnee(void) {
-    char buf[64];
-    int annee;
 
-    for (;;) {
-        printf("Annee a consulter (%d-%d), 0 pour quitter : ", ANNEE_DEBUT, ANNEE_FIN);
-        if (fgets(buf, sizeof buf, stdin) == NULL) return 0;   // fin de saisie
-        if (sscanf(buf, "%d", &annee) != 1) {
+// Vide le clavier si l'utilisateur a tapé n'importe quoi
+void viderBuffer(void) {
+    int c;
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
+}
+
+
+// Menu : on demande une année tant que l'utilisateur ne tape pas 0
+void menu(void) {
+    int annee = -1;
+    int resultat;
+
+    while (annee != 0) {
+        printf("\nAnnee a consulter (%d a %d), 0 pour quitter : ", ANNEE_DEBUT, ANNEE_FIN);
+        resultat = scanf("%d", &annee);
+
+        if (resultat != 1) {
             printf("Saisie invalide.\n");
-            continue;
+            viderBuffer();
+            annee = -1;                      // on reste dans la boucle
         }
-        if (annee == 0) return 0;
-        if (annee >= ANNEE_DEBUT && annee <= ANNEE_FIN) return annee;
-        printf("Annee hors de l'intervalle.\n");
+        else if (annee == 0) {
+            printf("Au revoir.\n");
+        }
+        else if (annee < ANNEE_DEBUT || annee > ANNEE_FIN) {
+            printf("Annee hors de l'intervalle.\n");
+        }
+        else {
+            afficher(annee);
+        }
     }
 }
 
+
+// Fonction appelée par le main quand on choisit le mode YEAR_DATA
 void modeYearData(const char *cheminCsv) {
     FILE *f = fopen(cheminCsv, "r");
-    int annee;
 
     if (f == NULL) {
-        fprintf(stderr, "Impossible d'ouvrir %s : %s\n", cheminCsv, strerror(errno));
+        printf("Impossible d'ouvrir le fichier %s\n", cheminCsv);
         exit(1);
     }
 
-    memset(annees, 0, sizeof annees);
+    initialiser();
     calculer(f);
     fclose(f);
 
-    while ((annee = demanderAnnee()) != 0)
-        afficherAnnee(annee);
+    menu();
 }
-
 
 
