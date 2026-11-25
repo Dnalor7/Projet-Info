@@ -1,4 +1,5 @@
 #ifndef bibli_h
+#define bibli.h
 
 #include <stdio.h>
 #include <time.h>
@@ -8,3 +9,5 @@
 #include <errno.h>
 #define NB_ANNEES 20
 #define ANNEE_DEBUT 2005
+#define ANNEE_FIN (ANNE_DEBUT + NB_ANNEES-1)
+#endif
