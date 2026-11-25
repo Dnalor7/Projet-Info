@@ -68,24 +68,27 @@ int lireLigne(FILE *f, Ligne *l) {
     memset(l, 0, sizeof(Ligne));
 
     // --- Champs obligatoires : on vérifie qu'ils sont valides ---
-    int type    = nombre(champs[4], 0);
-    int gravite = nombre(champs[5], 0);
-    int genre   = nombre(champs[6], 0);
-    int naiss   = nombre(champs[7], 0);
+    int type    = nombre(champs[4], -1);
+    int gravite = nombre(champs[5], -2);
+    int genre   = nombre(champs[6], -3);
+    int naiss   = nombre(champs[7], -4);
 
     l->annee       = nombre(champs[0], 0);
-    l->collisionId = nombre(champs[1], -1);
-    l->vehiculeId  = nombre(champs[2], -1);
-
-    if (l->annee < 1900 || l->annee > 2100) erreur("année invalide");
-    if (l->collisionId < 0)                 erreur("collision_id invalide");
-    if (l->vehiculeId < 0)                  erreur("vehicule_id invalide");
+    l->collisionId = nombre(champs[1], -5);
+    l->vehiculeId  = nombre(champs[2], -6);
+    l->trajet      = nombre(champs[8], 0);
+    
+    if (l->annee < 2005 || l->annee > 2024) erreur("année invalide");
+    if (l->collisionId < 1)                 erreur("collision_id invalide");
+    if (l->vehiculeId < 1 ||l->vehiculeId > 2)  erreur("vehicule_id invalide");
     if (type < 1 || type > 3)               erreur("user_type invalide");
     if (gravite < 1 || gravite > 4)         erreur("severity invalide");
+    if (trajet < -1)                        erreur("trajets  ivalide ");
 
+    if(trajet == 0 || trajet == -1)        printf("Trajet non renseigné");
+    
     // --- Champs non obligatoires : valeur par défaut si vide ---
     l->emplacement = nombre(champs[3], 0);
-    l->trajet      = nombre(champs[8], 0);
 
     // Tableaux "interrupteurs" : on met 1 dans la bonne case
     l->type[type - 1] = 1;
@@ -94,10 +97,14 @@ int lireLigne(FILE *f, Ligne *l) {
         l->genre[genre - 1] = 1;     // sinon : genre non relevé, les deux cases restent à 0
 
     // Âge = année de l'accident - année de naissance (-1 si inconnu)
-    if (naiss > 1850 && naiss <= l->annee)
+    if (naiss > 1900 && naiss <= l->annee)
         l->age = l->annee - naiss;
     else
         l->age = -1;
+
+
+
+    
 
     return 1;
 }
