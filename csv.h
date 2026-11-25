@@ -13,6 +13,7 @@ typedef struct {
     int type[3];       // 1 conducteur, 2 passager, 3 piéton
     int gravite[4];          // 1 à 4
     int genre[2];            // 1 masculin, 2 féminin, 0 non relevé
+    int naiss;
 } Ligne;
 
 // Lit la ligne suivante. Retourne 1 si OK, 0 si fin de fichier.
